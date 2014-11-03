@@ -24,8 +24,8 @@ public class AuthenticateTokenServiceTest {
 
     @Test
     public void testIsAuthorized() throws Exception {
-        boolean a = authenticateTokenService.isAuthorized("8f61035a-d9b1-11e3-9364-03a5361ff574");
-        System.out.print("a:" + a);
+      //  boolean a = authenticateTokenService.isAuthorized("8f61035a-d9b1-11e3-9364-03a5361ff574");
+       // System.out.print("a:" + a);
 
     }
 }

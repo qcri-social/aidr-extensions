@@ -38,11 +38,14 @@ public class EMSCController {
     }
     @RequestMapping(value="/consumes", method=RequestMethod.POST, consumes="application/json")
     public ResponseEntity<String> uriComponentsBuilder(@RequestBody String jsonString) {
+
         int returnCode = emscService.processNewEarthQuakeRequest(jsonString);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        return new ResponseEntity<String>("status:" + returnCode,
+
+        return new ResponseEntity<String>("{\"status\":" + returnCode+"}",
                 headers, HttpStatus.OK);
+
     }
 
 

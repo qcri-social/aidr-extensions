@@ -18,4 +18,5 @@ public interface EMSCEarthQuakeDao extends AbstractDao<EMSCEarthQuake, String> {
     List<EMSCEarthQuake> getEeathQuakeByStatusAndCrisisCode(Integer status, String crisisCode);
     List<EMSCEarthQuake> getEeathQuakeByCrisisCode(String crisisCode);
     List<EMSCEarthQuake> getCrisisCode();
+    void updateEMSCEarthQuakeStatus(Integer status, Long id);
 }

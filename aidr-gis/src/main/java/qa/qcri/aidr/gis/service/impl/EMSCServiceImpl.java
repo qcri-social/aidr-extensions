@@ -43,6 +43,7 @@ public class EMSCServiceImpl implements EMSCService {
     @Override
     @Transactional(readOnly = false)
     public Integer processNewEarthQuakeRequest(String jsonString) {
+        logger.info("processNewEarthQuakeRequest *************************");
 
         int returnCode = StatusCode.SERVICE_DEFAULT_RETURN_CODE;
         if(!DataFormatValidator.isValidateJson(jsonString)  ){
@@ -137,20 +138,29 @@ public class EMSCServiceImpl implements EMSCService {
 
             }
 
-            String updatableGeo = geo + "," + requestedGeo;
+            String updatableGeo = geo ;
+
+            if(!geo.isEmpty()){
+                updatableGeo =  updatableGeo + LookUp.COMMA_SEPERATEOR;
+            }
+
+            updatableGeo = updatableGeo + requestedGeo;
 
             returncCode = this.pushCollectionDetailUpdate(id, updatableGeo, token, com, defaultHours, true);
 
             if(returncCode == -1){
-                logger.error("failed");
+                logger.error("***********  failed : check manager!!!!  ****************************");
+                logger.error(String.format("EMSC processNewGeoForActiveCollection id: %s geoInfo: %s failed",id, updatableGeo));
             }
 
         } catch (ParseException e) {
             logger.error(e);
+            logger.error(String.format("EMSC processNewGeoForActiveCollection ParseException : %s",e));
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
         catch (Exception e1) {
             logger.error(e1);
+            logger.error(String.format("EMSC processNewGeoForActiveCollection Exception : %s",e1));
             e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
 
@@ -161,8 +171,10 @@ public class EMSCServiceImpl implements EMSCService {
     @Transactional(readOnly = false)
     public void processExpirationCheck() throws Exception{
         List<EMSCEarthQuake> crisisList = emscEarthQuakeDao.getCrisisCode();
+        logger.info("crisisList :" + crisisList.size());
         for (Object temp : crisisList){
             String crisisCode = (String) temp;
+            logger.info("crisisCode :" + crisisCode);
             List<EMSCEarthQuake> quakeList = emscEarthQuakeDao.getEeathQuakeByStatusAndCrisisCode(StatusCode.RUNNING, crisisCode);
             this.processActiveCollectionBatch(quakeList, crisisCode);
         }
@@ -170,34 +182,48 @@ public class EMSCServiceImpl implements EMSCService {
     }
 
     private void processActiveCollectionBatch(List<EMSCEarthQuake> quakeList, String crisisCode) throws Exception{
+
+        logger.info("processActiveCollectionBatch");
         Communicator com = new Communicator();
-        CollectionBean collectionBean = createCollectionBean(com, crisisCode);
+        CollectionBean collectionBean = this.createCollectionBean(com, crisisCode);
 
-        for (EMSCEarthQuake temp : quakeList) {
-            Date currenDateTime = new Date();
-            if(currenDateTime.compareTo(temp.getScheduled_stop()) < 1){
-                String emscGeo =  temp.getGeo();
+        if(collectionBean.getBoundingBoxList().size() > 1){
+            logger.info("collectionBean.getBoundingBoxList().size() should be greater than 1 to process batch: " +  collectionBean.getBoundingBoxList().size());
+            for (EMSCEarthQuake temp : quakeList) {
+                Date currenDateTime = new Date();
+                logger.info("currenDateTime:" + currenDateTime);
+                logger.info("temp.getScheduled_stop():" + temp.getScheduled_stop());
 
-                for (BoundingBox bBox : collectionBean.getBoundingBoxList()){
-                    if(bBox.getCoordinates().equalsIgnoreCase(emscGeo))
-                    {
-                        bBox.setDeactivationStatus(true);
+                if(temp.getScheduled_stop().compareTo(currenDateTime) < 1){
+                    String emscGeo =  temp.getGeo();
+                    for (BoundingBox bBox : collectionBean.getBoundingBoxList()){
+                        if(bBox.getCoordinates().equalsIgnoreCase(emscGeo))
+                        {
+                            bBox.setDeactivationStatus(true);
+                            emscEarthQuakeDao.updateEMSCEarthQuakeStatus(StatusCode.EXPIRED, temp.getId());
+
+                        }
                     }
                 }
             }
-        }
 
-        StringBuffer sb = new StringBuffer() ;
-        for(int i = 0; i < collectionBean.getBoundingBoxList().size(); i++){
-            if(!collectionBean.getBoundingBoxList().get(i).isDeactivationStatus()){
-                if(i > 0){
-                    sb.append(",");
+            if(collectionBean.getBoundingBoxList().size() > 0){
+                StringBuffer sb = new StringBuffer() ;
+                for(int i = 0; i < collectionBean.getBoundingBoxList().size(); i++){
+                    if(!collectionBean.getBoundingBoxList().get(i).isDeactivationStatus()){
+                        if(!sb.toString().isEmpty()){
+                            sb.append(LookUp.COMMA_SEPERATEOR);
+                        }
+                        sb.append(collectionBean.getBoundingBoxList().get(i).getCoordinates());
+                    }
                 }
-                sb.append(collectionBean.getBoundingBoxList().get(i).getCoordinates());
+
+                logger.info("sb.toString(): " + sb.toString());
+
+                int returncCode = this.pushCollectionDetailUpdate(collectionBean.getId(), sb.toString(), LookUp.EMPTY_STRING, com, 0, false);
+                logger.info("returncCode: " + returncCode);
             }
         }
-
-        int returncCode = pushCollectionDetailUpdate(collectionBean.getId(), sb.toString(), null, com, 0, false);
 
     }
 
@@ -236,10 +262,9 @@ public class EMSCServiceImpl implements EMSCService {
 
         for(int i = 0; i < geoCollectionSize; i++){
             int index = LookUp.BOUNDING_BOX_ELEMENT_SIZE * i;
-            String  geoTemp = list.get(index)+","+list.get(index+1)+","+list.get(index+2)+","+list.get(index+3);
+            String  geoTemp = list.get(index)+ LookUp.COMMA_SEPERATEOR +list.get(index+1)+ LookUp.COMMA_SEPERATEOR +list.get(index+2)+ LookUp.COMMA_SEPERATEOR +list.get(index+3);
             BoundingBox javaBean = new BoundingBox(index, geoTemp);
             boundingBoxList.add(javaBean);
-
         }
 
         return new CollectionBean(id, boundingBoxList);

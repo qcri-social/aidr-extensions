@@ -23,10 +23,14 @@ public class EMSCServiceTest {
 
     @Test
     public void testProcessNewEarthQuakeRequest() throws Exception {
-        int rvc = emscService.processNewEarthQuakeRequest("");
-        System.out.println(rvc);
-
-       // int rvc = emscService.processNewEarthQuakeRequest(EMSCMock.getEarthQuakeRequestMockData());
+        //int rvc = emscService.processNewEarthQuakeRequest("");
         //System.out.println(rvc);
+
+
+      //  emscService.processExpirationCheck();
+
+      //  int rvc2 = emscService.processNewEarthQuakeRequest(EMSCMock.getEarthQuakeRequestMockData());
+      //  System.out.println(rvc2);
+
     }
 }

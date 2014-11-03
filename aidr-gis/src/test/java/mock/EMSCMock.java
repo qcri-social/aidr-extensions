@@ -33,13 +33,13 @@ public class EMSCMock {
         sb.append("\"durationInHours\": 6");
         sb.append(",");
 
-        sb.append("\"geo\": \"2.68,4.27,14.68,13.89\"");
+        sb.append("\"geo\": \"126.24,38.21,127.05,39.48\"");
         sb.append(",");
 
         sb.append("\"epicenter\": \"9.96,124.13\"");
         sb.append(",");
 
-        sb.append("\"max_collections\": 10");
+        sb.append("\"max_collections\": 2");
 
         sb.append("}");
 

@@ -27,12 +27,16 @@ public class SyncWorker implements Worker {
 	public void work() {
 		String threadName = Thread.currentThread().getName();
 		//logger.debug("   " + threadName + " has began working.(SyncWorker - run ClientApps)");
-        logger.info("esriWorker is starting");
+        logger.info("scheduled worker is starting");
         try {
              //Disable esri due to upgrade
             //esriWorker.generateGeoJson();
+            System.out.println("processExpirationCheck is tring");
             emscService.processExpirationCheck();
             //TimeUnit.MINUTES.toMillis(yourMinutes)
+
+            System.out.println("processExpirationCheck is after");
+
             Thread.sleep(1800000); // simulates work
             //Thread.sleep(180000);
 

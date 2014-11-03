@@ -49,4 +49,14 @@ public class EMSCEarthQuakeDaoImpl extends AbstractDaoImpl<EMSCEarthQuake, Strin
     public List<EMSCEarthQuake> getCrisisCode() {
         return findAllByFieldName("crisis_code");  //To change body of implemented methods use File | Settings | File Templates.
     }
+
+    @Override
+    public void updateEMSCEarthQuakeStatus(Integer status, Long id) {
+        List<EMSCEarthQuake> rs = findByCriteria(Restrictions.eq("id", id));
+        if(rs.size() > 0){
+            EMSCEarthQuake emscEarthQuake = rs.get(0);
+            emscEarthQuake.setStatus(status);
+            saveOrUpdate(emscEarthQuake);
+        }
+    }
 }
