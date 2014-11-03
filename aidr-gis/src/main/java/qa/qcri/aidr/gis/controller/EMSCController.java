@@ -33,7 +33,6 @@ public class EMSCController {
 
     @RequestMapping(value="/test", method= RequestMethod.GET)
     public @ResponseBody String testing() {
-        //System.out.println("fileURL : " + LookUp.DEFAULT_ESRI_DATA + fileURL);
         return "testing";
     }
     @RequestMapping(value="/consumes", method=RequestMethod.POST, consumes="application/json")
